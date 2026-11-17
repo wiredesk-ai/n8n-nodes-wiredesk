@@ -1,0 +1,18 @@
+{
+	"node": "n8n-nodes-wiredesk.wiredeskTrigger",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Communication", "Sales"],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://wiredesk.ai/docs/integrations/n8n#install-the-node"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://wiredesk.ai/docs/integrations/n8n#start-a-workflow-from-a-wiredesk-event"
+			}
+		]
+	}
+}

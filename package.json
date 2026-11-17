@@ -1,0 +1,60 @@
+{
+	"name": "n8n-nodes-wiredesk",
+	"version": "0.1.1",
+	"description": "n8n nodes for Wiredesk: AI agents that answer chat, phone and email. Talk to an agent, manage contacts and knowledge, read conversations and leads, and start workflows on Wiredesk events.",
+	"license": "MIT",
+	"homepage": "https://wiredesk.ai/docs/integrations/n8n",
+	"keywords": [
+		"n8n-community-node-package",
+		"n8n",
+		"wiredesk",
+		"ai agent",
+		"customer support",
+		"chatbot",
+		"voice agent"
+	],
+	"author": {
+		"name": "Wiredesk",
+		"email": "admin@wiredesk.ai"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/wiredesk-ai/n8n-nodes-wiredesk.git"
+	},
+	"scripts": {
+		"build": "n8n-node build",
+		"build:watch": "tsc --watch",
+		"dev": "n8n-node dev",
+		"lint": "n8n-node lint",
+		"lint:fix": "n8n-node lint --fix",
+		"test": "n8n-node build && node --test test/*.test.mjs",
+		"release": "n8n-node release",
+		"prepublishOnly": "n8n-node prerelease"
+	},
+	"files": [
+		"dist"
+	],
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"strict": true,
+		"credentials": [
+			"dist/credentials/WiredeskApi.credentials.js"
+		],
+		"nodes": [
+			"dist/nodes/Wiredesk/Wiredesk.node.js",
+			"dist/nodes/WiredeskTrigger/WiredeskTrigger.node.js"
+		]
+	},
+	"devDependencies": {
+		"@n8n/node-cli": "^0.56.4",
+		"@types/node": "22.20.5",
+		"eslint": "9.39.4",
+		"n8n-workflow": "2.47.2",
+		"prettier": "3.8.3",
+		"release-it": "21.1.2",
+		"typescript": "5.9.3"
+	},
+	"peerDependencies": {
+		"n8n-workflow": "*"
+	}
+}
