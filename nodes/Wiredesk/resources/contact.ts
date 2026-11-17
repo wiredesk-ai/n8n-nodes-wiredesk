@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { paginationFields, unwrapData } from '../shared/descriptions';
+import { deleteOutput, paginationFields, unwrapData } from '../shared/descriptions';
 
 const forContact = { resource: ['contact'] };
 const forOperations = (...operation: string[]) => ({ ...forContact, operation });
@@ -16,45 +16,47 @@ export const contactDescription: INodeProperties[] = [
 			{
 				name: 'Create',
 				value: 'create',
-				action: 'Create a contact',
-				description: 'Add a contact by phone number or email, with the name agents should use',
+				action: 'Create contact',
+				description:
+					'Create a new contact from a phone number or email address, with the name agents should use',
 				routing: { request: { method: 'POST', url: '/contacts' }, ...unwrapData },
 			},
 			{
 				name: 'Delete',
 				value: 'delete',
-				action: 'Delete a contact',
+				action: 'Delete contact',
 				description:
-					'Delete a contact and the notes agents kept about them. Their conversations stay.',
-				routing: { request: { method: 'DELETE', url: contactUrl }, ...unwrapData },
+					'Delete a contact permanently, with the notes agents kept about them. Their conversations stay.',
+				routing: { request: { method: 'DELETE', url: contactUrl }, ...deleteOutput },
 			},
 			{
 				name: 'Find',
 				value: 'find',
-				action: 'Find a contact by email or phone',
+				action: 'Find contact by email or phone',
 				description:
-					'Look up the one contact with an email address or phone number. Returns nothing when there is none.',
+					'Retrieve the contact with an email address or phone number. Returns nothing when there is none.',
 				routing: { request: { method: 'GET', url: '/contacts', qs: { limit: 1 } }, ...unwrapData },
 			},
 			{
 				name: 'Get',
 				value: 'get',
-				action: 'Get a contact',
-				description: 'Get one contact',
+				action: 'Get contact',
+				description: 'Retrieve a contact, with when they were first and last seen',
 				routing: { request: { method: 'GET', url: contactUrl }, ...unwrapData },
 			},
 			{
 				name: 'Get Many',
 				value: 'getAll',
 				action: 'Get many contacts',
-				description: 'List the people who have talked to the workspace’s agents, newest first, or find one by email or phone',
+				description:
+					'Retrieve a list of contacts: the people who have talked to the workspace’s agents, newest first',
 				routing: { request: { method: 'GET', url: '/contacts' }, ...unwrapData },
 			},
 			{
 				name: 'Update',
 				value: 'update',
-				action: 'Update a contact',
-				description: 'Change a contact’s name',
+				action: 'Update contact',
+				description: 'Update a contact’s name',
 				routing: { request: { method: 'PATCH', url: contactUrl }, ...unwrapData },
 			},
 		],
@@ -87,7 +89,7 @@ export const contactDescription: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
-		placeholder: 'e.g. jane@example.com or +14155550123',
+		placeholder: 'e.g. nathan@example.com or +14155550123',
 		displayOptions: { show: forOperations('create') },
 		description: 'The email address, or the phone number in international format',
 		routing: { send: { type: 'body', property: 'value' } },
@@ -97,6 +99,7 @@ export const contactDescription: INodeProperties[] = [
 		name: 'name',
 		type: 'string',
 		default: '',
+		placeholder: 'e.g. Nathan Smith',
 		displayOptions: { show: forOperations('create') },
 		description: 'The name agents should know them by',
 		routing: { send: { type: 'body', property: 'name' } },
@@ -106,6 +109,7 @@ export const contactDescription: INodeProperties[] = [
 		name: 'name',
 		type: 'string',
 		default: '',
+		placeholder: 'e.g. Nathan Smith',
 		displayOptions: { show: forOperations('update') },
 		description: 'The contact’s new name. Leave empty to clear it.',
 		routing: { send: { type: 'body', property: 'name' } },
@@ -125,7 +129,7 @@ export const contactDescription: INodeProperties[] = [
 		displayName: 'Email',
 		name: 'email',
 		type: 'string',
-		placeholder: 'name@email.com',
+		placeholder: 'e.g. nathan@example.com',
 		required: true,
 		default: '',
 		displayOptions: { show: { ...forOperations('find'), findBy: ['email'] } },
@@ -157,7 +161,7 @@ export const contactDescription: INodeProperties[] = [
 				displayName: 'Email',
 				name: 'email',
 				type: 'string',
-				placeholder: 'name@email.com',
+				placeholder: 'e.g. nathan@example.com',
 				default: '',
 				description: 'Only the contact with this email address. Case does not matter.',
 				routing: { send: { type: 'query', property: 'email' } },

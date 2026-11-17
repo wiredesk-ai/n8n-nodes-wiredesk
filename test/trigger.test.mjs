@@ -173,8 +173,9 @@ describe('activating and deactivating', () => {
 			],
 		});
 		await assert.rejects(methods.create.call(context), (error) => {
-			assert.equal(error.message, 'a workspace can have up to 10 webhook endpoints');
+			assert.equal(error.message, 'A workspace can have up to 10 webhook endpoints');
 			assert.match(error.description, /Deactivate a workflow you no longer need/);
+			assert.match(error.description, /\(Wiredesk code: webhook_limit\)$/);
 			return true;
 		});
 		assert.deepEqual(context.staticData, {});
@@ -191,7 +192,7 @@ describe('activating and deactivating', () => {
 			);
 		}
 		const context = hookContext({ answers: [[502, 'Bad Gateway']] });
-		await assert.rejects(methods.create.call(context), /Wiredesk answered 502/);
+		await assert.rejects(methods.create.call(context), /Wiredesk answered with HTTP status 502/);
 	});
 
 	test('delete removes this URL’s endpoint and forgets it', async () => {
@@ -222,7 +223,7 @@ describe('activating and deactivating', () => {
 			staticData: stored(),
 			answers: [[500, { error: { code: 'internal', message: 'something broke' } }]],
 		});
-		await assert.rejects(methods.delete.call(context), /something broke/);
+		await assert.rejects(methods.delete.call(context), /Something broke/);
 		assert.equal(context.staticData.endpoints[URL].id, 'wh_1');
 	});
 
@@ -324,7 +325,7 @@ describe('activating and deactivating', () => {
 					[500, { error: { code: 'internal', message: 'something broke' } }],
 				],
 			});
-			await assert.rejects(methods.checkExists.call(context), /something broke/);
+			await assert.rejects(methods.checkExists.call(context), /Something broke/);
 			// Still stored, so the next activation or delete can finish the removal.
 			assert.deepEqual(context.staticData, stored());
 		}
@@ -351,7 +352,7 @@ describe('activating and deactivating', () => {
 			staticData: stored(),
 			answers: [[401, { error: { code: 'unauthorized', message: 'that API key is not valid' } }]],
 		});
-		await assert.rejects(methods.checkExists.call(context), /that API key is not valid/);
+		await assert.rejects(methods.checkExists.call(context), /That API key is not valid/);
 	});
 
 	test('an earlier build’s single endpoint is filed under its URL', async () => {

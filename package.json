@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-wiredesk",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "n8n nodes for Wiredesk: AI agents that answer chat, phone and email. Talk to an agent, manage contacts and knowledge, read conversations and leads, and start workflows on Wiredesk events.",
 	"license": "MIT",
 	"homepage": "https://wiredesk.ai/docs/integrations/n8n",

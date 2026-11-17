@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { agentSelect, paginationFields, unwrapData } from '../shared/descriptions';
+import { agentSelect, deleteOutput, paginationFields, unwrapData } from '../shared/descriptions';
 
 const forAgent = { resource: ['agent'] };
 const forOperations = (...operation: string[]) => ({ ...forAgent, operation });
@@ -15,9 +15,9 @@ export const agentDescription: INodeProperties[] = [
 			{
 				name: 'Create',
 				value: 'create',
-				action: 'Create an agent',
+				action: 'Create agent',
 				description:
-					'Create an agent from a name and instructions, set up as the dashboard’s New agent form sets one up',
+					'Create a new agent from a name and instructions, set up the way the dashboard’s New agent form sets one up',
 				routing: {
 					request: { method: 'POST', url: '/agents' },
 					...unwrapData,
@@ -26,22 +26,22 @@ export const agentDescription: INodeProperties[] = [
 			{
 				name: 'Delete',
 				value: 'delete',
-				action: 'Delete an agent',
+				action: 'Delete agent',
 				description:
-					'Delete an agent. It stops answering at once; an owner can restore it from the dashboard for 30 days.',
+					'Delete an agent. It stops answering at once, and an owner can restore it from the dashboard for 30 days.',
 				routing: {
 					request: {
 						method: 'DELETE',
 						url: '=/agents/{{ encodeURIComponent($parameter.agentId) }}',
 					},
-					...unwrapData,
+					...deleteOutput,
 				},
 			},
 			{
 				name: 'Get',
 				value: 'get',
-				action: 'Get an agent',
-				description: 'Get an agent: its name, greeting, instructions and channels',
+				action: 'Get agent',
+				description: 'Retrieve an agent, with its name, greeting, instructions and channels',
 				routing: {
 					request: { method: 'GET', url: '=/agents/{{ encodeURIComponent($parameter.agentId) }}' },
 					...unwrapData,
@@ -51,7 +51,7 @@ export const agentDescription: INodeProperties[] = [
 				name: 'Get Many',
 				value: 'getAll',
 				action: 'Get many agents',
-				description: 'List the workspace’s agents, newest first',
+				description: 'Retrieve a list of the workspace’s agents, newest first',
 				routing: {
 					request: { method: 'GET', url: '/agents' },
 					...unwrapData,
@@ -60,9 +60,9 @@ export const agentDescription: INodeProperties[] = [
 			{
 				name: 'Send Message',
 				value: 'sendMessage',
-				action: 'Send a message to an agent',
+				action: 'Send message to agent',
 				description:
-					'Send a customer’s message to an agent and get its reply, like the chat widget does',
+					'Send a customer’s message to an agent and get its reply, as the chat widget does',
 				routing: {
 					request: {
 						method: 'POST',
@@ -74,8 +74,8 @@ export const agentDescription: INodeProperties[] = [
 			{
 				name: 'Update',
 				value: 'update',
-				action: 'Update an agent',
-				description: 'Change an agent’s name, greeting or instructions',
+				action: 'Update agent',
+				description: 'Update an agent’s name, greeting or instructions',
 				routing: {
 					request: {
 						method: 'PATCH',
@@ -95,6 +95,7 @@ export const agentDescription: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		placeholder: 'e.g. Front Desk',
 		displayOptions: { show: forOperations('create') },
 		description: 'The agent’s name. Up to 80 characters.',
 		routing: { send: { type: 'body', property: 'name' } },
@@ -154,7 +155,7 @@ export const agentDescription: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				description:
-					'Continue this conversation: the conversation_id an earlier Send Message returned. Leave empty to start a new one.',
+					"The 'conversation_id' an earlier Send Message returned, to continue that conversation. Leave empty to start a new one.",
 				routing: { send: { type: 'body', property: 'conversation_id' } },
 			},
 			{
@@ -171,6 +172,7 @@ export const agentDescription: INodeProperties[] = [
 				name: 'name',
 				type: 'string',
 				default: '',
+				placeholder: 'e.g. Nathan Smith',
 				description: 'The person’s name, stored on their contact if it has none yet',
 				routing: { send: { type: 'body', property: 'name' } },
 			},

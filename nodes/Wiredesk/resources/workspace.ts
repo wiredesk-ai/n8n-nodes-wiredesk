@@ -29,25 +29,25 @@ export const workspaceDescription: INodeProperties[] = [
 			{
 				name: 'Get Analytics',
 				value: 'getAnalytics',
-				action: 'Get analytics',
+				action: 'Get workspace analytics',
 				description:
-					'Resolution and handover rates, ratings, time to a person, hours saved, leads, outcomes, sentiment and topics, beside the period before',
+					'Retrieve the workspace’s resolution and handover rates, ratings, time to a person, hours saved, leads, outcomes, sentiment and topics, beside the period before',
 				routing: { request: { method: 'GET', url: '/analytics' }, ...unwrapData },
 			},
 			{
 				name: 'Get Dashboard',
 				value: 'getDashboard',
-				action: 'Get the dashboard',
+				action: 'Get workspace dashboard',
 				description:
-					'The workspace at a glance: agents, headline numbers, what needs a person and the latest conversations',
+					'Retrieve the workspace at a glance: agents, headline numbers, what needs a person and the latest conversations',
 				routing: { request: { method: 'GET', url: '/dashboard' }, ...unwrapData },
 			},
 			{
 				name: 'Who Am I',
 				value: 'whoami',
-				action: 'Get who the API key belongs to',
+				action: 'Get workspace of API key',
 				description:
-					'The workspace, its plan and this month’s usage, and whether the key may make changes',
+					'Retrieve the workspace the API key belongs to, its plan and this month’s usage, and whether the key may make changes',
 				routing: { request: { method: 'GET', url: '/whoami' }, ...unwrapData },
 			},
 		],

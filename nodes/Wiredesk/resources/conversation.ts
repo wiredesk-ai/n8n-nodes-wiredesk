@@ -1,5 +1,6 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { paginationFields, unwrapData } from '../shared/descriptions';
+import { paginationFields, simplifyField, unwrapData } from '../shared/descriptions';
+import { simplifyConversation, simplifyInboxItem } from '../shared/output';
 
 const forConversation = { resource: ['conversation'] };
 const forOperations = (...operation: string[]) => ({ ...forConversation, operation });
@@ -28,36 +29,36 @@ export const conversationDescription: INodeProperties[] = [
 				value: 'export',
 				action: 'Export conversations',
 				description:
-					'Get the conversations that started in a date range, newest first, each with its transcript',
+					'Retrieve the conversations that started in a date range, newest first, each with its transcript',
 				routing: { request: { method: 'GET', url: '/conversations/export' }, ...unwrapData },
 			},
 			{
 				name: 'Get',
 				value: 'get',
-				action: 'Get a conversation',
-				description: 'Get one conversation, with its summary, outcome, topic and sentiment',
+				action: 'Get conversation',
+				description: 'Retrieve a conversation, with its summary, outcome, topic and sentiment',
 				routing: { request: { method: 'GET', url: conversationUrl }, ...unwrapData },
 			},
 			{
 				name: 'Get Inbox',
 				value: 'getInbox',
-				action: 'Get what needs a person',
+				action: 'Get inbox conversations',
 				description:
-					'List what is waiting on a person: chats that asked for one, chats taken over, and unread messages agents took',
+					'List the conversations waiting on a person: chats that asked for one, chats taken over, and unread messages agents took',
 				routing: { request: { method: 'GET', url: '/inbox' }, ...unwrapData },
 			},
 			{
 				name: 'Get Many',
 				value: 'getAll',
 				action: 'Get many conversations',
-				description: 'List conversations across every channel, newest first',
+				description: 'Retrieve a list of conversations across every channel, newest first',
 				routing: { request: { method: 'GET', url: '/conversations' }, ...unwrapData },
 			},
 			{
 				name: 'Get Messages',
 				value: 'getMessages',
-				action: 'Get the messages of a conversation',
-				description: 'Read a conversation’s transcript, oldest message first',
+				action: 'Get conversation messages',
+				description: 'List all messages in a conversation, oldest first, as its transcript reads',
 				routing: {
 					request: {
 						method: 'GET',
@@ -71,15 +72,15 @@ export const conversationDescription: INodeProperties[] = [
 				value: 'search',
 				action: 'Search conversations',
 				description:
-					'Find conversations by the customer’s name, number or email, topic, summary, outcome or channel',
+					'Find conversations by the customer’s name, number or email, or by topic, summary, outcome or channel',
 				routing: { request: { method: 'GET', url: '/conversations/search' }, ...unwrapData },
 			},
 			{
 				name: 'Update',
 				value: 'update',
-				action: 'Take over or hand back a conversation',
+				action: 'Take over or hand back conversation',
 				description:
-					'Take a chat, email or WhatsApp conversation over so a person answers it, or hand it back to the agent',
+					'Take over a chat, email or WhatsApp conversation so a person answers it, or hand it back to the agent',
 				routing: { request: { method: 'PATCH', url: conversationUrl }, ...unwrapData },
 			},
 		],
@@ -100,20 +101,20 @@ export const conversationDescription: INodeProperties[] = [
 		required: true,
 		options: [
 			{
-				name: 'Claim',
+				name: 'Take Over',
 				value: 'claim',
 				description:
-					'Take it over in the name of the key’s maker: the agent stops answering and a person replies from the dashboard',
+					'Take the conversation over in the name of the person who made the API key: the agent stops answering and a person replies from the dashboard',
 			},
 			{
-				name: 'Release',
+				name: 'Hand Back',
 				value: 'release',
-				description: 'Hand it back to the agent',
+				description: 'Hand the conversation back to the agent',
 			},
 		],
 		default: 'claim',
 		displayOptions: { show: forOperations('update') },
-		description: 'A takeover nobody answers is released after 30 minutes',
+		description: 'A takeover nobody answers is handed back to the agent after 30 minutes',
 		routing: { send: { type: 'body', property: 'handover' } },
 	},
 	{
@@ -202,11 +203,14 @@ export const conversationDescription: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		placeholder: 'e.g. refund',
 		displayOptions: { show: forOperations('search') },
 		description: 'What to look for',
 		routing: { send: { type: 'query', property: 'q' } },
 	},
 	...paginationFields(forOperations('getAll', 'getMessages', 'search')),
+	simplifyField(forOperations('get', 'getAll', 'search'), simplifyConversation),
+	simplifyField(forOperations('getInbox'), simplifyInboxItem),
 	{
 		displayName: 'Filters',
 		name: 'filters',

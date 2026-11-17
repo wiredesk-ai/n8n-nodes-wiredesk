@@ -13,6 +13,9 @@ import { BASE_URL } from './shared/transport';
  * Wiredesk's public REST API (https://wiredesk.ai/docs/api-reference) as a
  * declarative node: every operation is one endpoint, and every field is one
  * of that endpoint's documented parameters.
+ *
+ * Version 1.1 adds Simplify and the one-item `{ "deleted": true }` delete
+ * output; nodes added at version 1 keep the output they had.
  */
 export class Wiredesk implements INodeType {
 	description: INodeTypeDescription = {
@@ -20,10 +23,10 @@ export class Wiredesk implements INodeType {
 		name: 'wiredesk',
 		icon: { light: 'file:../../icons/wiredesk.svg', dark: 'file:../../icons/wiredesk.dark.svg' },
 		group: ['transform'],
-		version: 1,
+		version: [1, 1.1],
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		description:
-			'Talk to Wiredesk AI agents, manage contacts, knowledge and webhook endpoints, and read conversations and leads',
+			'Talk to Wiredesk AI agents, manage contacts, knowledge sources and webhook endpoints, and read conversations and leads',
 		defaults: {
 			name: 'Wiredesk',
 		},
@@ -38,6 +41,9 @@ export class Wiredesk implements INodeType {
 		],
 		requestDefaults: {
 			baseURL: BASE_URL,
+			// Refusals come back as answers, so each operation's checkResponse
+			// can say what happened and how to fix it.
+			ignoreHttpStatusErrors: true,
 			headers: {
 				Accept: 'application/json',
 				'Content-Type': 'application/json',
@@ -55,7 +61,7 @@ export class Wiredesk implements INodeType {
 					{ name: 'Conversation', value: 'conversation' },
 					{ name: 'Knowledge Source', value: 'knowledgeSource' },
 					{ name: 'Lead', value: 'lead' },
-					{ name: 'Webhook', value: 'webhook' },
+					{ name: 'Webhook Endpoint', value: 'webhook' },
 					{ name: 'Workspace', value: 'workspace' },
 				],
 				default: 'agent',

@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { unwrapData } from '../shared/descriptions';
+import { deleteOutput, unwrapData } from '../shared/descriptions';
 
 const forWebhook = { resource: ['webhook'] };
 const forOperations = (...operation: string[]) => ({ ...forWebhook, operation });
@@ -19,36 +19,37 @@ export const webhookDescription: INodeProperties[] = [
 			{
 				name: 'Create',
 				value: 'create',
-				action: 'Create a webhook endpoint',
+				action: 'Create webhook endpoint',
 				description:
-					'Subscribe an https URL to events. Returns its ID and its signing secret, which is shown only this once.',
+					'Create a new webhook endpoint that sends the chosen events to an https URL. Returns its ID and its signing secret, which is shown only this once.',
 				routing: { request: { method: 'POST', url: '/webhooks' }, ...unwrapData },
 			},
 			{
 				name: 'Delete',
 				value: 'delete',
-				action: 'Delete a webhook endpoint',
-				description: 'Remove a webhook endpoint. Nothing more is sent to it.',
+				action: 'Delete webhook endpoint',
+				description: 'Delete a webhook endpoint permanently. Nothing more is sent to it.',
 				routing: {
 					request: {
 						method: 'DELETE',
 						url: '=/webhooks/{{ encodeURIComponent($parameter.webhookId) }}',
 					},
-					...unwrapData,
+					...deleteOutput,
 				},
 			},
 			{
 				name: 'Get Many',
 				value: 'getAll',
 				action: 'Get many webhook endpoints',
-				description: 'List the workspace’s webhook endpoints, without their signing secrets',
+				description:
+					'Retrieve a list of the workspace’s webhook endpoints, without their signing secrets',
 				routing: { request: { method: 'GET', url: '/webhooks' }, ...unwrapData },
 			},
 		],
 		default: 'create',
 	},
 	{
-		displayName: 'Webhook ID',
+		displayName: 'Webhook Endpoint ID',
 		name: 'webhookId',
 		type: 'string',
 		required: true,

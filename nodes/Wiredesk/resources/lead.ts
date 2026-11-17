@@ -16,7 +16,7 @@ export const leadDescription: INodeProperties[] = [
 				name: 'Get Many',
 				value: 'getAll',
 				action: 'Get many leads',
-				description: 'List the leads agents captured, newest first',
+				description: 'Retrieve a list of the leads agents captured, newest first',
 				routing: { request: { method: 'GET', url: '/leads' }, ...unwrapData },
 			},
 		],

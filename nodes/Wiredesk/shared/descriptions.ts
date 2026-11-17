@@ -1,4 +1,5 @@
 import type { IDataObject, IDisplayOptions, INodeProperties } from 'n8n-workflow';
+import { checkResponse, deletedOutput, SIMPLIFY_VERSION, simplifyWith } from './output';
 
 /**
  * Pieces every resource uses. The API lists newest first, in pages of up to
@@ -51,10 +52,7 @@ const nextPageQuery = (pageSize: number) =>
  * `pageSize` is the endpoint's largest page: 100, or 25 for an export,
  * whose every row carries its transcript.
  */
-export function paginationFields(
-	show: IDisplayOptions['show'],
-	pageSize = 100,
-): INodeProperties[] {
+export function paginationFields(show: IDisplayOptions['show'], pageSize = 100): INodeProperties[] {
 	return [
 		{
 			displayName: 'Return All',
@@ -100,9 +98,49 @@ export function paginationFields(
 	];
 }
 
-/** Every answer is `{ data: … }`; this hands n8n what is inside. */
+/**
+ * Every answer is `{ data: … }`; this hands n8n what is inside, after
+ * turning a refusal into an error that says how to fix it.
+ */
 export const unwrapData = {
 	output: {
-		postReceive: [{ type: 'rootProperty' as const, properties: { property: 'data' } }],
+		postReceive: [
+			checkResponse,
+			{ type: 'rootProperty' as const, properties: { property: 'data' } },
+		],
 	},
 };
+
+/**
+ * A delete's answer: `{ "deleted": true }` from node version 1.1 on, and
+ * the API's `{ id, object, deleted }` for nodes added before it.
+ */
+export const deleteOutput = {
+	output: {
+		postReceive: [
+			checkResponse,
+			{ type: 'rootProperty' as const, properties: { property: 'data' } },
+			deletedOutput,
+		],
+	},
+};
+
+/**
+ * The Simplify switch for operations whose items have more than ten
+ * fields. Shown from node version 1.1 on, so nodes added at version 1 keep
+ * their full output.
+ */
+export function simplifyField(
+	show: IDisplayOptions['show'],
+	pick: (item: IDataObject) => IDataObject,
+): INodeProperties {
+	return {
+		displayName: 'Simplify',
+		name: 'simplify',
+		type: 'boolean',
+		default: true,
+		displayOptions: { show: { ...show, '@version': [{ _cnd: { gte: SIMPLIFY_VERSION } }] } },
+		description: 'Whether to return a simplified version of the response instead of the raw data',
+		routing: { output: { postReceive: [simplifyWith(pick)] } },
+	};
+}

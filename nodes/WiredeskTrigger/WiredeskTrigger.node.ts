@@ -11,7 +11,7 @@ import {
 	type IWebhookResponseData,
 	type JsonObject,
 } from 'n8n-workflow';
-import { BASE_URL } from '../Wiredesk/shared/transport';
+import { BASE_URL, describeRefusal } from '../Wiredesk/shared/transport';
 
 /**
  * Starts a workflow on Wiredesk's webhooks
@@ -133,24 +133,28 @@ async function request(
 	return { statusCode: response.statusCode, body: parsed as IDataObject };
 }
 
+/**
+ * A refusal from the API, saying what happened and how to fix it: the
+ * trigger's own advice for the refusals activating it can meet, and the
+ * node's for any other.
+ */
 function apiError(this: IHookFunctions, response: { statusCode: number; body: IDataObject }) {
 	const error = (response.body.error ?? {}) as IDataObject;
-	const message =
-		typeof error.message === 'string' ? error.message : `Wiredesk answered ${response.statusCode}`;
-	let description: string | undefined;
+	const { message, description: general } = describeRefusal(response.statusCode, response.body);
+	let advice: string | undefined;
 	if (error.code === 'read_only_key') {
-		description =
-			'The trigger adds a webhook endpoint in Wiredesk, which takes a Full access API key.';
+		advice =
+			'The trigger adds a webhook endpoint in Wiredesk, which takes a Full access API key. Make one under Developers → API keys and use it in the Wiredesk API credential.';
 	} else if (error.code === 'webhook_limit') {
-		description =
+		advice =
 			'Each active Wiredesk Trigger uses one of the workspace’s webhook endpoints. Deactivate a workflow you no longer need, or remove an endpoint under Developers → Webhooks.';
 	} else if (error.code === 'invalid_request') {
-		description =
-			'Wiredesk sends webhooks only to https URLs on a public host, so n8n’s webhook URL has to be reachable from the internet.';
+		advice =
+			'Wiredesk sends webhooks only to https URLs on a public host, so n8n’s webhook URL has to be reachable from the internet. Set n8n’s WEBHOOK_URL to its public address, or use a tunnel.';
 	}
 	return new NodeApiError(this.getNode(), response.body as JsonObject, {
 		message,
-		description,
+		description: advice ? `${advice} (Wiredesk code: ${String(error.code)})` : general,
 		httpCode: String(response.statusCode),
 	});
 }
